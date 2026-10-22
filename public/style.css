@@ -23,14 +23,20 @@ input:focus,select:focus,textarea:focus{outline:2px solid #999;outline-offset:0}
 .btn.primary{background:var(--ok);border-color:var(--ok)}
 .btn.danger{background:var(--bad);border-color:var(--bad);color:#fff}
 .btn.danger:hover{background:#981b12}
+.btn-sm{padding:3px 8px;font-size:11px;margin-top:0}
+.list-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.list-head h3{margin:0}
 .list-card{display:flex;flex-direction:column;min-height:200px}
 .list{overflow:auto;max-height:260px;border:1px solid var(--line);border-radius:6px}
-.item{padding:9px 10px;border-bottom:1px solid var(--line);cursor:pointer;display:flex;justify-content:space-between;gap:8px}
+.item{padding:9px 10px;border-bottom:1px solid var(--line);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px}
 .item:last-child{border-bottom:0}
 .item:hover{background:#fafafa}
 .item.active{background:#eeeeee}
 .item .n{font-weight:700;font-size:13px}
 .item .s{color:var(--muted);font-size:11px;font-family:'JetBrains Mono',monospace}
+.item-right{display:flex;align-items:center;gap:6px}
+.remove-batch-btn{border:none;background:transparent;color:#999;font-size:16px;line-height:1;cursor:pointer;padding:2px 5px;border-radius:4px;transition:all .15s ease}
+.remove-batch-btn:hover{color:var(--bad);background:#fde8e6}
 .badge{font-size:11px;padding:2px 7px;border-radius:999px;height:fit-content;white-space:nowrap}
 .badge.draft{background:#f0ede2;color:var(--warn)}
 .badge.sent{background:#e3f6ec;color:var(--ok)}

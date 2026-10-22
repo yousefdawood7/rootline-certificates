@@ -66,6 +66,7 @@
     <section class="card list-card">
       <div class="list-head">
         <h3>Certificates <span id="count"></span></h3>
+        <button id="restoreBatchBtn" class="btn ghost btn-sm hidden" type="button">Restore all (<span id="hiddenCount">0</span>)</button>
       </div>
       <div id="list" class="list"></div>
       <div class="batch">
@@ -103,7 +104,8 @@
           <button id="saveBtn" class="btn secondary">Save changes</button>
           <a id="pdfLink" class="btn secondary" target="_blank">Download PDF</a>
           <button id="sendOneBtn" class="btn primary">Send this one</button>
-          <button id="deleteBtn" class="btn danger" type="button">Delete certificate</button>
+          <button id="removeFromBatchBtn" class="btn secondary" type="button" title="Remove from current batch and view (keeps in store)">Remove from batch</button>
+          <button id="deleteBtn" class="btn danger" type="button" title="Permanently delete from database">Delete from store</button>
         </div>
         <div id="editMsg" class="msg"></div>
       </div>

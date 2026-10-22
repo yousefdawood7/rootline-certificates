@@ -1,5 +1,5 @@
 const $ = (sel) => document.querySelector(sel);
-const state = { certs: [], selectedId: null, fileBase64: null, headers: [] };
+const state = { certs: [], allCerts: [], hiddenIds: new Set(), selectedId: null, fileBase64: null, headers: [] };
 
 async function api(path, options = {}) {
   const res = await fetch(path, {
@@ -55,7 +55,12 @@ async function loadTemplate() {
 }
 
 async function loadCerts(keepSelection = true) {
-  state.certs = await api('/api/certificates');
+  state.allCerts = await api('/api/certificates');
+  refreshVisibleCerts(keepSelection);
+}
+
+function refreshVisibleCerts(keepSelection = true) {
+  state.certs = state.allCerts.filter((c) => !state.hiddenIds.has(c.id));
   if (!keepSelection || !state.certs.find((c) => c.id === state.selectedId)) {
     state.selectedId = state.certs.length ? state.certs[0].id : null;
   }
@@ -63,10 +68,37 @@ async function loadCerts(keepSelection = true) {
   renderWorkspace();
 }
 
+function removeFromBatch(id) {
+  const cert = state.allCerts.find((c) => c.id === id);
+  if (!cert) return;
+  state.hiddenIds.add(id);
+  const nextIdx = state.certs.findIndex((c) => c.id === id);
+  state.certs = state.allCerts.filter((c) => !state.hiddenIds.has(c.id));
+  if (state.selectedId === id) {
+    if (state.certs.length > 0) {
+      const newIdx = Math.min(nextIdx, state.certs.length - 1);
+      state.selectedId = state.certs[newIdx].id;
+    } else {
+      state.selectedId = null;
+    }
+  }
+  renderList();
+  renderWorkspace();
+  toast(`Removed ${cert.studentName} from batch (kept in store)`);
+}
+
 function renderList() {
   const list = $('#list');
   list.innerHTML = '';
   $('#count').textContent = `(${state.certs.length})`;
+
+  const hiddenCount = state.hiddenIds.size;
+  const restoreBtn = $('#restoreBatchBtn');
+  if (restoreBtn) {
+    restoreBtn.classList.toggle('hidden', hiddenCount === 0);
+    $('#hiddenCount').textContent = hiddenCount;
+  }
+
   const pending = state.certs.filter((c) => c.status !== 'sent').length;
   $('#sendAllBtn').disabled = pending === 0;
   $('#sendAllBtn').textContent = `Send all pending (${pending})`;
@@ -79,14 +111,23 @@ function renderList() {
         <div class="n"></div>
         <div class="s"></div>
       </div>
-      <span class="badge ${c.status}">${c.status}</span>`;
+      <div class="item-right">
+        <span class="badge ${c.status}">${c.status}</span>
+        <button class="remove-batch-btn" title="Remove from batch (keeps in store)" type="button">&times;</button>
+      </div>`;
     row.querySelector('.n').textContent = c.studentName;
     row.querySelector('.s').textContent = c.id;
     row.onclick = () => { state.selectedId = c.id; renderList(); renderWorkspace(); };
+    row.querySelector('.remove-batch-btn').onclick = (e) => {
+      e.stopPropagation();
+      removeFromBatch(c.id);
+    };
     list.appendChild(row);
   });
   if (!state.certs.length) {
-    list.innerHTML = '<div class="hint" style="padding:12px">No certificates yet.</div>';
+    list.innerHTML = hiddenCount > 0
+      ? '<div class="hint" style="padding:12px">All certificates removed from batch view.</div>'
+      : '<div class="hint" style="padding:12px">No certificates yet.</div>';
   }
 }
 
@@ -143,9 +184,8 @@ async function saveSelected() {
   if (!cert) return false;
   try {
     const updated = await api(`/api/certificates/${cert.id}`, { method: 'PUT', body: readEditor() });
-    state.certs = state.certs.map((c) => (c.id === updated.id ? updated : c));
-    renderList();
-    renderWorkspace();
+    state.allCerts = state.allCerts.map((c) => (c.id === updated.id ? updated : c));
+    refreshVisibleCerts(true);
     setMsg($('#editMsg'), 'Saved. Preview updated.', true);
     return true;
   } catch (err) {
@@ -165,26 +205,29 @@ $('#nextBtn').onclick = () => {
   if (i < state.certs.length - 1) { state.selectedId = state.certs[i + 1].id; renderList(); renderWorkspace(); }
 };
 $('#saveBtn').onclick = saveSelected;
+$('#removeFromBatchBtn').onclick = () => {
+  const cert = selectedCert();
+  if (cert) removeFromBatch(cert.id);
+};
 $('#deleteBtn').onclick = async () => {
   const cert = selectedCert();
   if (!cert) return;
-  if (!confirm(`Are you sure you want to delete certificate ${cert.id} (${cert.studentName})? This cannot be undone.`)) return;
+  if (!confirm(`Are you sure you want to permanently delete certificate ${cert.id} (${cert.studentName}) from the store? This completely erases it and cannot be undone.`)) return;
   try {
     await api(`/api/certificates/${cert.id}`, { method: 'DELETE' });
-    toast(`Deleted certificate ${cert.id}`);
-    const nextIdx = state.certs.findIndex((c) => c.id === cert.id);
-    state.certs = state.certs.filter((c) => c.id !== cert.id);
-    if (state.certs.length > 0) {
-      const newIdx = Math.min(nextIdx, state.certs.length - 1);
-      state.selectedId = state.certs[newIdx].id;
-    } else {
-      state.selectedId = null;
-    }
-    renderList();
-    renderWorkspace();
+    toast(`Permanently deleted certificate ${cert.id}`);
+    state.allCerts = state.allCerts.filter((c) => c.id !== cert.id);
+    state.hiddenIds.delete(cert.id);
+    refreshVisibleCerts(false);
   } catch (err) {
     toast(err.message);
   }
+};
+$('#restoreBatchBtn').onclick = () => {
+  const count = state.hiddenIds.size;
+  state.hiddenIds.clear();
+  refreshVisibleCerts(true);
+  toast(`Restored ${count} certificate(s) to batch view`);
 };
 
 // Live preview while typing (debounced)
@@ -197,9 +240,9 @@ let previewTimer = null;
     previewTimer = setTimeout(async () => {
       try {
         await api(`/api/certificates/${cert.id}`, { method: 'PUT', body: readEditor() });
-        const idx = state.certs.findIndex((c) => c.id === cert.id);
-        state.certs[idx] = { ...state.certs[idx], ...readEditor(), status: 'draft' };
-        renderList();
+        const idx = state.allCerts.findIndex((c) => c.id === cert.id);
+        if (idx !== -1) state.allCerts[idx] = { ...state.allCerts[idx], ...readEditor(), status: 'draft' };
+        refreshVisibleCerts(true);
         refreshPreview();
       } catch (err) {
         setMsg($('#editMsg'), err.message, false);
@@ -330,10 +373,10 @@ async function runJob(body, label) {
 }
 
 $('#sendAllBtn').onclick = async () => {
-  const pending = state.certs.filter((c) => c.status !== 'sent').length;
-  if (!pending) return;
-  if (!confirm(`Send ${pending} certificate email(s) now? Sent certificates cannot be changed afterwards.`)) return;
-  await runJob(emailPayload(), 'Sending batch');
+  const pendingCerts = state.certs.filter((c) => c.status !== 'sent');
+  if (!pendingCerts.length) return;
+  if (!confirm(`Send ${pendingCerts.length} certificate email(s) now? Sent certificates cannot be changed afterwards.`)) return;
+  await runJob({ ...emailPayload(), ids: pendingCerts.map((c) => c.id) }, 'Sending batch');
 };
 
 $('#sendOneBtn').onclick = async () => {
