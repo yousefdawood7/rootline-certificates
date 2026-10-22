@@ -153,7 +153,6 @@ app.put('/api/certificates/:id', (req, res) => {
 app.delete('/api/certificates/:id', (req, res) => {
   const cert = store.getCertificate(req.params.id);
   if (!cert) return res.status(404).json({ error: 'Not found' });
-  if (cert.status === 'sent') return res.status(409).json({ error: 'Sent certificates cannot be deleted' });
   store.deleteCertificate(cert.id);
   res.json({ ok: true });
 });

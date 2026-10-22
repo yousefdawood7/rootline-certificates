@@ -165,6 +165,27 @@ $('#nextBtn').onclick = () => {
   if (i < state.certs.length - 1) { state.selectedId = state.certs[i + 1].id; renderList(); renderWorkspace(); }
 };
 $('#saveBtn').onclick = saveSelected;
+$('#deleteBtn').onclick = async () => {
+  const cert = selectedCert();
+  if (!cert) return;
+  if (!confirm(`Are you sure you want to delete certificate ${cert.id} (${cert.studentName})? This cannot be undone.`)) return;
+  try {
+    await api(`/api/certificates/${cert.id}`, { method: 'DELETE' });
+    toast(`Deleted certificate ${cert.id}`);
+    const nextIdx = state.certs.findIndex((c) => c.id === cert.id);
+    state.certs = state.certs.filter((c) => c.id !== cert.id);
+    if (state.certs.length > 0) {
+      const newIdx = Math.min(nextIdx, state.certs.length - 1);
+      state.selectedId = state.certs[newIdx].id;
+    } else {
+      state.selectedId = null;
+    }
+    renderList();
+    renderWorkspace();
+  } catch (err) {
+    toast(err.message);
+  }
+};
 
 // Live preview while typing (debounced)
 let previewTimer = null;

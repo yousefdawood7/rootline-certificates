@@ -21,6 +21,8 @@ input:focus,select:focus,textarea:focus{outline:2px solid #999;outline-offset:0}
 .btn.secondary{background:#fff;color:var(--ink)}
 .btn.ghost{background:transparent;color:var(--ink);border-color:#cfcfcf}
 .btn.primary{background:var(--ok);border-color:var(--ok)}
+.btn.danger{background:var(--bad);border-color:var(--bad);color:#fff}
+.btn.danger:hover{background:#981b12}
 .list-card{display:flex;flex-direction:column;min-height:200px}
 .list{overflow:auto;max-height:260px;border:1px solid var(--line);border-radius:6px}
 .item{padding:9px 10px;border-bottom:1px solid var(--line);cursor:pointer;display:flex;justify-content:space-between;gap:8px}

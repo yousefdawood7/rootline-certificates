@@ -10,7 +10,8 @@ A = 'http://schemas.openxmlformats.org/drawingml/2006/main'
 P = 'http://schemas.openxmlformats.org/presentationml/2006/main'
 R = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'
 ns = {'a': A, 'p': P, 'r': R}
-W, H = 10693400, 7556500
+EMU = 12700
+W, H = round(10693400 / EMU, 1), round(7556500 / EMU, 1)
 
 tree = etree.parse(SLIDE)
 root = tree.getroot()
@@ -63,7 +64,7 @@ def freeform_d(sp, T):
             lx = ox + px * ex / pw
             ly = oy + py * ey / ph
             X, Y = apply(T, lx, ly)
-            return f'{X:.0f} {Y:.0f}'
+            return f'{X/EMU:.2f} {Y/EMU:.2f}'
         for cmd in path:
             tag = etree.QName(cmd).localname
             if tag == 'moveTo':
@@ -95,14 +96,14 @@ def emit_shape(sp, T):
             if ln is not None and ln.find('a:solidFill/a:srgbClr', ns) is not None:
                 d = freeform_d(sp, T)
                 lc = ln.find('a:solidFill/a:srgbClr', ns).get('val')
-                lw = int(ln.get('w', '12700'))
-                out.append(f'<path d="{d}" fill="none" stroke="#{lc}" stroke-width="{lw}"/>')
+                lw = int(ln.get('w', '12700')) / EMU
+                out.append(f'<path d="{d}" fill="none" stroke="#{lc}" stroke-width="{lw:.2f}"/>')
             return
         if rid == 'rId4':
             ox, oy, ex, ey = shape_xfrm(sp)
             X, Y = apply(T, ox, oy)
             w = ex * T[0]; h = ey * T[1]
-            out.append(f'<image xlink:href="signature.png" x="{X:.0f}" y="{Y:.0f}" width="{w:.0f}" height="{h:.0f}" preserveAspectRatio="none"/>')
+            out.append(f'<image xlink:href="signature.png" x="{X/EMU:.2f}" y="{Y/EMU:.2f}" width="{w/EMU:.2f}" height="{h/EMU:.2f}" preserveAspectRatio="none"/>')
         return
     d = freeform_d(sp, T)
     if not d:
@@ -113,8 +114,8 @@ def emit_shape(sp, T):
         ln = sp.find('./p:spPr/a:ln', ns)
         if ln is not None and ln.find('a:solidFill/a:srgbClr', ns) is not None:
             lc = ln.find('a:solidFill/a:srgbClr', ns).get('val')
-            lw = int(ln.get('w', '12700'))
-            out.append(f'<path d="{d}" fill="none" stroke="#{lc}" stroke-width="{lw}"/>')
+            lw = int(ln.get('w', '12700')) / EMU
+            out.append(f'<path d="{d}" fill="none" stroke="#{lc}" stroke-width="{lw:.2f}"/>')
 
 BAR_CENTER = None  # set while emitting the course bar (it sits inside a scaled group)
 
@@ -132,23 +133,22 @@ def emit_text(sp, T):
     face = lat.get('typeface') if lat is not None else 'Arimo'
     col = sp.xpath('.//a:rPr/a:solidFill/a:srgbClr/@val', namespaces=ns)[0]
     algn = (sp.xpath('.//a:pPr/@algn', namespaces=ns) or ['l'])[0]
-    font_emu = sz * 127 / 100 * 100 / 100  # sz in 1/100 pt -> EMU
-    font_emu = sz * 127  # 1pt = 12700 EMU, sz is hundredths of pt -> sz*127
-    ls = spc * 127
-    cx = X + w / 2
-    cy = Y + h / 2
+    font_pt = sz / 100
+    ls_pt = spc / 100
+    cx = (X + w / 2) / EMU
+    cy = (Y + h / 2) / EMU
     baseline_mode = None
     if text.strip() == 'Advanced Frontend Workshop':
         # Center the capital-letter height on the black bar, not the whole font box.
         # Arimo cap height is 0.716em, so the baseline sits 0.358em below the bar center.
-        bar = BAR_CENTER
+        bar = BAR_CENTER / EMU if BAR_CENTER is not None else None
         if bar is not None:
-            cy = bar + 0.358 * font_emu
+            cy = bar + 0.358 * font_pt
             baseline_mode = 'alphabetic'
     if algn == 'ctr':
         anchor, x = 'middle', cx
     else:
-        anchor, x = 'start', X
+        anchor, x = 'start', X / EMU
     if 'Mono' in face:
         family = "'JetBrains Mono', monospace"
     else:
@@ -164,12 +164,13 @@ def emit_text(sp, T):
     }.get(key, html.escape(text))
     # max width used for auto-shrink (server side)
     attr_extra = ''
+    w_pt = w / EMU
     if placeholder.startswith('{{') :
-        attr_extra = f' data-field="{placeholder[2:-2]}" data-maxw="{w:.0f}" data-size="{font_emu:.0f}"'
+        attr_extra = f' data-field="{placeholder[2:-2]}" data-maxw="{w_pt:.2f}" data-size="{font_pt:.2f}"'
     out.append(
-        f'<text x="{x:.0f}" y="{cy:.0f}" text-anchor="{anchor}" dominant-baseline="{baseline_mode or "central"}" '
-        f'font-family="{family}" font-size="{font_emu:.0f}" font-weight="{weight}" '
-        f'letter-spacing="{ls}" fill="#{col}"{attr_extra}>{placeholder}</text>'
+        f'<text x="{x:.2f}" y="{cy:.2f}" text-anchor="{anchor}" dominant-baseline="{baseline_mode or "central"}" '
+        f'font-family="{family}" font-size="{font_pt:.2f}" font-weight="{weight}" '
+        f'letter-spacing="{ls_pt:.2f}" fill="#{col}"{attr_extra}>{placeholder}</text>'
     )
 
 def walk(parent, T):
