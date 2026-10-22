@@ -92,13 +92,6 @@ function renderList() {
   list.innerHTML = '';
   $('#count').textContent = `(${state.certs.length})`;
 
-  const hiddenCount = state.hiddenIds.size;
-  const restoreBtn = $('#restoreBatchBtn');
-  if (restoreBtn) {
-    restoreBtn.classList.toggle('hidden', hiddenCount === 0);
-    $('#hiddenCount').textContent = hiddenCount;
-  }
-
   const pending = state.certs.filter((c) => c.status !== 'sent').length;
   $('#sendAllBtn').disabled = pending === 0;
   $('#sendAllBtn').textContent = `Send all pending (${pending})`;
@@ -222,12 +215,6 @@ $('#deleteBtn').onclick = async () => {
   } catch (err) {
     toast(err.message);
   }
-};
-$('#restoreBatchBtn').onclick = () => {
-  const count = state.hiddenIds.size;
-  state.hiddenIds.clear();
-  refreshVisibleCerts(true);
-  toast(`Restored ${count} certificate(s) to batch view`);
 };
 
 // Live preview while typing (debounced)
@@ -417,8 +404,9 @@ function escapeAttr(s) { return escapeHtml(s); }
 
 (async function boot() {
   $('#testTo').value = localStorage.getItem('rootline.testTo') || '';
-  document.querySelector('#addForm [name=date]').value =
-    new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const currentMonth = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  document.querySelector('#addForm [name=date]').value = currentMonth;
+  $('#defDate').value = currentMonth;
   try {
     await loadStatus();
     await loadTemplate();
