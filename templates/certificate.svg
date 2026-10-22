@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 10693400 7556500" width="10693400" height="7556500">
+<rect width="10693400" height="7556500" fill="#FAFAFA"/>
+<path d="M380886 380886 L571291 380886 L571291 571291 L380886 571291 Z" fill="#171717"/>
+<path d="M10122065 380886 L10312470 380886 L10312470 571291 L10122065 571291 Z" fill="#171717"/>
+<path d="M380886 6989274 L571291 6989274 L571291 7179679 L380886 7179679 Z" fill="#171717"/>
+<path d="M10122065 6989274 L10312470 6989274 L10312470 7179679 L10122065 7179679 Z" fill="#171717"/>
+<path d="M5156254 876043 L5265029 876043 L5265029 984818 L5156254 984818 Z" fill="#171717"/>
+<path d="M5308521 876043 L5537216 876043 L5537216 984818 L5308521 984818 Z" fill="#171717"/>
+<path d="M371361 371361 L10322032 371361 L10322032 7189260 L371361 7189260 Z" fill="none" stroke="#171717" stroke-width="19044"/>
+<path d="M5428478 984799 L5537253 984799 L5537253 1224734 L5428478 1224734 Z" fill="#171717"/>
+<path d="M5265010 1115311 L5537234 1115311 L5537234 1224754 L5265010 1224754 Z" fill="#171717"/>
+<path d="M5156254 1028957 L5265029 1028957 L5265029 1409291 L5156254 1409291 Z" fill="#171717"/>
+<path d="M5428478 1279427 L5537253 1279427 L5537253 1409253 L5428478 1409253 Z" fill="#171717"/>
+<text x="5346706" y="1621150" text-anchor="middle" dominant-baseline="central" font-family="Arimo, Arial, 'Liberation Sans', sans-serif" font-size="209423" font-weight="bold" letter-spacing="57023" fill="#171717">ROOTLINE</text>
+<text x="5346696" y="2466242" text-anchor="middle" dominant-baseline="central" font-family="'JetBrains Mono', monospace" font-size="142748" font-weight="normal" letter-spacing="47498" fill="#525252">CERTIFICATE OF COMPLETION</text>
+<text x="5346706" y="2792377" text-anchor="middle" dominant-baseline="central" font-family="Arimo, Arial, 'Liberation Sans', sans-serif" font-size="171323" font-weight="normal" letter-spacing="0" fill="#525252">Proudly presented to</text>
+<text x="5346702" y="3529257" text-anchor="middle" dominant-baseline="central" font-family="Arimo, Arial, 'Liberation Sans', sans-serif" font-size="685546" font-weight="bold" letter-spacing="0" fill="#171717" data-field="STUDENT_NAME" data-maxw="8569957" data-size="685546">{{STUDENT_NAME}}</text>
+<path d="M4775368 3923138 L5917987 3923138 L5917987 3961238 L4775368 3961238 Z" fill="#171717"/>
+<text x="5346696" y="4211178" text-anchor="middle" dominant-baseline="central" font-family="Arimo, Arial, 'Liberation Sans', sans-serif" font-size="171323" font-weight="normal" letter-spacing="0" fill="#404040">for successfully completing all requirements of the</text>
+<path d="M2490045 4494466 L8203331 4494466 L8203331 5008626 L2490045 5008626 Z" fill="#171717"/>
+<text x="5346698" y="4840159" text-anchor="middle" dominant-baseline="alphabetic" font-family="Arimo, Arial, 'Liberation Sans', sans-serif" font-size="247523" font-weight="bold" letter-spacing="0" fill="#FAFAFA" data-field="COURSE_TITLE" data-maxw="5713305" data-size="247523">{{COURSE_TITLE}}</text>
+<path d="M1066486 6094190 L3351820 6094190 L3351820 6113240 L1066486 6113240 Z" fill="#171717"/>
+<text x="2209148" y="6306055" text-anchor="middle" dominant-baseline="central" font-family="Arimo, Arial, 'Liberation Sans', sans-serif" font-size="161798" font-weight="normal" letter-spacing="0" fill="#171717" data-field="INSTRUCTOR_NAME" data-maxw="2285324" data-size="161798">{{INSTRUCTOR_NAME}}</text>
+<text x="2209148" y="6541736" text-anchor="middle" dominant-baseline="central" font-family="'JetBrains Mono', monospace" font-size="114173" font-weight="normal" letter-spacing="9398" fill="#525252">INSTRUCTOR</text>
+<path d="M4927721 5808526 L5765635 5808526 L5765635 6646440 L4927721 6646440 Z" fill="#171717"/>
+<path d="M5176256 5989444 L5273316 5989444 L5273316 6086504 L5176256 6086504 Z" fill="#FAFAFA"/>
+<path d="M5312197 5989444 L5516413 5989444 L5516413 6086504 L5312197 6086504 Z" fill="#FAFAFA"/>
+<path d="M5419306 6086551 L5516366 6086551 L5516366 6300768 L5419306 6300768 Z" fill="#FAFAFA"/>
+<path d="M5273354 6203080 L5516432 6203080 L5516432 6300806 L5273354 6300806 Z" fill="#FAFAFA"/>
+<path d="M5176256 6125985 L5273316 6125985 L5273316 6465551 L5176256 6465551 Z" fill="#FAFAFA"/>
+<path d="M5419306 6349622 L5516366 6349622 L5516366 6465541 L5419306 6465541 Z" fill="#FAFAFA"/>
+<path d="M7341594 6094190 L9626928 6094190 L9626928 6113240 L7341594 6113240 Z" fill="#171717"/>
+<text x="8484256" y="6306055" text-anchor="middle" dominant-baseline="central" font-family="Arimo, Arial, 'Liberation Sans', sans-serif" font-size="161798" font-weight="normal" letter-spacing="0" fill="#171717" data-field="ISSUE_DATE" data-maxw="2285324" data-size="161798">{{ISSUE_DATE}}</text>
+<text x="8484256" y="5904496" text-anchor="middle" dominant-baseline="central" font-family="'JetBrains Mono', monospace" font-size="139573" font-weight="normal" letter-spacing="11557" fill="#171717" data-field="CERT_ID" data-maxw="2285324" data-size="139573">{{CERT_ID}}</text>
+<image xlink:href="signature.png" x="1186121" y="5381532" width="2065196" height="740740" preserveAspectRatio="none"/>
+</svg>

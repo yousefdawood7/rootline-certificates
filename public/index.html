@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RootLine Certificates</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">ROOTLINE <span>Certificates</span></div>
+  <div id="status" class="pill">Checking…</div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+
+    <section class="card">
+      <h3>1. Import spreadsheet</h3>
+      <p class="hint">Excel (.xlsx, .xls) or CSV. Each row becomes a draft certificate with its own ID.</p>
+      <input type="file" id="file" accept=".xlsx,.xls,.csv">
+      <button id="inspectBtn" class="btn secondary" disabled>Read file</button>
+
+      <div id="mappingBox" class="hidden">
+        <div class="grid-2">
+          <label>Student name <select data-map="studentName"></select></label>
+          <label>Email <select data-map="email"></select></label>
+          <label>Course <select data-map="course"></select></label>
+          <label>Instructor <select data-map="instructor"></select></label>
+          <label>Date <select data-map="date"></select></label>
+        </div>
+        <p class="hint">If a column is set to "not in file", the default below is used.</p>
+        <label>Default course <input id="defCourse" value="Advanced Frontend Workshop"></label>
+        <label>Default instructor <input id="defInstructor" value="Instructor Name"></label>
+        <label>Default date <input id="defDate" value=""></label>
+        <button id="importBtn" class="btn">Create drafts</button>
+        <div id="importResult" class="hint"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>2. Add one certificate</h3>
+      <form id="addForm" autocomplete="off">
+        <label>Student name <input name="studentName" required></label>
+        <label>Email <input name="email" type="email" required></label>
+        <label>Course <input name="course" value="Advanced Frontend Workshop" required></label>
+        <label>Instructor <input name="instructor" value="Instructor Name" required></label>
+        <label>Date <input name="date" value="" required></label>
+        <button class="btn" type="submit">Add draft</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h3>3. Email message</h3>
+      <label>Subject <input id="subject"></label>
+      <label>Message <textarea id="body" rows="7"></textarea></label>
+      <p class="hint">Use {{name}}, {{course}}, {{instructor}}, {{date}}, {{id}}. The PDF is attached automatically.</p>
+      <button id="saveTemplateBtn" class="btn secondary">Save message</button>
+      <div class="test-box">
+        <label>Test email address <input id="testTo" type="email" placeholder="you@example.com"></label>
+        <button id="sendTestBtn" class="btn secondary">Send test of selected certificate</button>
+        <p class="hint">Sends the selected certificate to this address only. It does not change its status.</p>
+      </div>
+    </section>
+
+    <section class="card list-card">
+      <div class="list-head">
+        <h3>Certificates <span id="count"></span></h3>
+      </div>
+      <div id="list" class="list"></div>
+      <div class="batch">
+        <button id="sendAllBtn" class="btn primary" disabled>Send all pending</button>
+        <div class="progress hidden" id="progressBox">
+          <div class="bar"><div id="bar"></div></div>
+          <div id="progressText" class="hint"></div>
+        </div>
+      </div>
+    </section>
+  </aside>
+
+  <main class="main">
+    <div id="empty" class="empty">Import a spreadsheet or add a certificate to start.</div>
+
+    <div id="workspace" class="hidden">
+      <div class="toolbar">
+        <button id="prevBtn" class="btn ghost">← Previous</button>
+        <div class="cert-meta">
+          <div class="cert-id" id="certId"></div>
+          <div id="certStatus"></div>
+        </div>
+        <button id="nextBtn" class="btn ghost">Next →</button>
+      </div>
+
+      <div class="editor card">
+        <div class="grid-2">
+          <label>Student name <input id="e_studentName"></label>
+          <label>Email <input id="e_email" type="email"></label>
+          <label>Course <input id="e_course"></label>
+          <label>Instructor <input id="e_instructor"></label>
+          <label>Date <input id="e_date"></label>
+        </div>
+        <div class="actions">
+          <button id="saveBtn" class="btn secondary">Save changes</button>
+          <a id="pdfLink" class="btn secondary" target="_blank">Download PDF</a>
+          <button id="sendOneBtn" class="btn primary">Send this one</button>
+        </div>
+        <div id="editMsg" class="msg"></div>
+      </div>
+
+      <div class="preview-wrap">
+        <div class="preview-label">Live preview</div>
+        <iframe id="preview" title="Certificate preview"></iframe>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+<script src="app.js"></script>
+</body>
+</html>

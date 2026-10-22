@@ -1,0 +1,22 @@
+{
+  "name": "rootline-certificates",
+  "version": "1.0.0",
+  "description": "Generate RootLine certificates from a spreadsheet, preview them, and email PDFs via Resend",
+  "main": "server.js",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@fontsource/arimo": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
+    "dotenv": "^16.6.1",
+    "express": "^4.22.3",
+    "puppeteer": "^23.11.1",
+    "resend": "^4.8.0",
+    "xlsx": "^0.18.5"
+  }
+}
