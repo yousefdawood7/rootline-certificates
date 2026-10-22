@@ -118,7 +118,7 @@ function renderList() {
     list.appendChild(row);
   });
   if (!state.certs.length) {
-    list.innerHTML = hiddenCount > 0
+    list.innerHTML = state.hiddenIds.size > 0
       ? '<div class="hint" style="padding:12px">All certificates removed from batch view.</div>'
       : '<div class="hint" style="padding:12px">No certificates yet.</div>';
   }
@@ -201,20 +201,6 @@ $('#saveBtn').onclick = saveSelected;
 $('#removeFromBatchBtn').onclick = () => {
   const cert = selectedCert();
   if (cert) removeFromBatch(cert.id);
-};
-$('#deleteBtn').onclick = async () => {
-  const cert = selectedCert();
-  if (!cert) return;
-  if (!confirm(`Are you sure you want to permanently delete certificate ${cert.id} (${cert.studentName}) from the store? This completely erases it and cannot be undone.`)) return;
-  try {
-    await api(`/api/certificates/${cert.id}`, { method: 'DELETE' });
-    toast(`Permanently deleted certificate ${cert.id}`);
-    state.allCerts = state.allCerts.filter((c) => c.id !== cert.id);
-    state.hiddenIds.delete(cert.id);
-    refreshVisibleCerts(false);
-  } catch (err) {
-    toast(err.message);
-  }
 };
 
 // Live preview while typing (debounced)
