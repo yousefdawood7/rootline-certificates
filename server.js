@@ -44,9 +44,11 @@ function validate(fields) {
 // "2026-10-22" or a real date -> "October 2026" (matches the design's date line)
 function formatCertificateDate(value) {
   if (!value) return '';
-  const d = new Date(value);
-  if (isNaN(d.getTime())) return String(value);
-  return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+  const str = String(value).trim();
+  if (/^[A-Za-z]+ \d{4}$/.test(str)) return str;
+  const d = new Date(str);
+  if (isNaN(d.getTime())) return str;
+  return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 }
 
 // ---------- status & email template ----------
