@@ -1,5 +1,30 @@
 const $ = (sel) => document.querySelector(sel);
+const DRAFTS_KEY = 'rootline.drafts';
 const state = { certs: [], allCerts: [], hiddenIds: new Set(), selectedId: null, fileBase64: null, headers: [] };
+
+function loadStoredDrafts() {
+  try {
+    const raw = localStorage.getItem(DRAFTS_KEY);
+    if (!raw) return [];
+    const list = JSON.parse(raw);
+    return Array.isArray(list) ? list.filter((c) => c && c.id && c.status !== 'sent') : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveStoredDrafts(drafts) {
+  try {
+    const clean = (drafts || []).filter((c) => c && c.id && c.status !== 'sent');
+    if (clean.length === 0) {
+      localStorage.removeItem(DRAFTS_KEY);
+    } else {
+      localStorage.setItem(DRAFTS_KEY, JSON.stringify(clean));
+    }
+  } catch (e) {
+    console.error('Failed to save drafts to localStorage', e);
+  }
+}
 
 async function api(path, options = {}) {
   const res = await fetch(path, {
@@ -55,7 +80,17 @@ async function loadTemplate() {
 }
 
 async function loadCerts(keepSelection = true) {
-  state.allCerts = await api('/api/certificates');
+  const localDrafts = loadStoredDrafts();
+  if (localDrafts.length > 0) {
+    try {
+      await api('/api/certificates/sync', { method: 'POST', body: { drafts: localDrafts } });
+    } catch (e) {
+      console.warn('Sync drafts error:', e);
+    }
+  }
+  const serverDrafts = await api('/api/certificates');
+  state.allCerts = (serverDrafts || []).filter((c) => c.status !== 'sent');
+  saveStoredDrafts(state.allCerts);
   refreshVisibleCerts(keepSelection);
 }
 
@@ -68,12 +103,22 @@ function refreshVisibleCerts(keepSelection = true) {
   renderWorkspace();
 }
 
-function removeFromBatch(id) {
+async function removeFromBatch(id) {
   const cert = state.allCerts.find((c) => c.id === id);
   if (!cert) return;
-  state.hiddenIds.add(id);
+
+  try {
+    await api(`/api/certificates/${id}`, { method: 'DELETE' });
+  } catch (e) {
+    console.warn('Failed to delete on server:', e);
+  }
+
   const nextIdx = state.certs.findIndex((c) => c.id === id);
+  state.hiddenIds.delete(id);
+  state.allCerts = state.allCerts.filter((c) => c.id !== id);
   state.certs = state.allCerts.filter((c) => !state.hiddenIds.has(c.id));
+  saveStoredDrafts(state.allCerts);
+
   if (state.selectedId === id) {
     if (state.certs.length > 0) {
       const newIdx = Math.min(nextIdx, state.certs.length - 1);
@@ -84,7 +129,7 @@ function removeFromBatch(id) {
   }
   renderList();
   renderWorkspace();
-  toast(`Removed ${cert.studentName} from batch (kept in store)`);
+  toast(`Removed ${cert.studentName}`);
 }
 
 function renderList() {
@@ -106,7 +151,7 @@ function renderList() {
       </div>
       <div class="item-right">
         <span class="badge ${c.status}">${c.status}</span>
-        <button class="remove-batch-btn" title="Remove from batch (keeps in store)" type="button">&times;</button>
+        <button class="remove-batch-btn" title="Remove certificate" type="button">&times;</button>
       </div>`;
     row.querySelector('.n').textContent = c.studentName;
     row.querySelector('.s').textContent = c.id;
@@ -178,6 +223,7 @@ async function saveSelected() {
   try {
     const updated = await api(`/api/certificates/${cert.id}`, { method: 'PUT', body: readEditor() });
     state.allCerts = state.allCerts.map((c) => (c.id === updated.id ? updated : c));
+    saveStoredDrafts(state.allCerts);
     refreshVisibleCerts(true);
     setMsg($('#editMsg'), 'Saved. Preview updated.', true);
     return true;
@@ -214,7 +260,10 @@ let previewTimer = null;
       try {
         await api(`/api/certificates/${cert.id}`, { method: 'PUT', body: readEditor() });
         const idx = state.allCerts.findIndex((c) => c.id === cert.id);
-        if (idx !== -1) state.allCerts[idx] = { ...state.allCerts[idx], ...readEditor(), status: 'draft' };
+        if (idx !== -1) {
+          state.allCerts[idx] = { ...state.allCerts[idx], ...readEditor(), status: 'draft' };
+          saveStoredDrafts(state.allCerts);
+        }
         refreshVisibleCerts(true);
         refreshPreview();
       } catch (err) {

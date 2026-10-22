@@ -124,7 +124,18 @@ app.post('/api/import', (req, res) => {
 
 // ---------- certificates ----------
 
-app.get('/api/certificates', (req, res) => res.json(store.listCertificates()));
+app.get('/api/certificates', (req, res) => {
+  if (req.query.status === 'sent') {
+    return res.json(store.listSentCertificates());
+  }
+  res.json(store.listCertificates());
+});
+
+app.post('/api/certificates/sync', (req, res) => {
+  const drafts = Array.isArray(req.body.drafts) ? req.body.drafts : [];
+  drafts.forEach((draft) => store.syncDraft(draft));
+  res.json(store.listCertificates());
+});
 
 // Create one certificate by hand (the "make the first, then the second" flow)
 app.post('/api/certificates', (req, res) => {
